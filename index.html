@@ -68,12 +68,11 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px var(--shadow-color);
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: box-shadow 0.3s ease;
             margin-bottom: 2rem;
         }
 
         .card:hover {
-            transform: translateY(-5px);
             box-shadow: 0 10px 20px var(--shadow-color);
         }
 
@@ -128,12 +127,10 @@
 
         .btn:hover {
             background-color: #2980b9;
-            transform: translateY(-2px);
             box-shadow: 0 4px 8px var(--shadow-color);
         }
 
         .btn:active {
-            transform: translateY(0);
             box-shadow: 0 2px 4px var(--shadow-color);
         }
 
@@ -425,7 +422,7 @@
             <!-- Calculate button -->
             <button
                onclick="calculateExpiry()"
-               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.01] shadow-md"
+               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg transition-all duration-300 shadow-md"
                aria-label="Рассчитать срок годности"
                id="calculateButton"
                disabled
@@ -480,7 +477,7 @@
     const dataStatus = document.getElementById('dataStatus');
     const calculateButton = document.getElementById('calculateButton');
 
-    // Загрузка данных из JSON-файла
+    // Загрузка данных из JSON-файлу
     async function loadProductsData() {
         try {
             // Показываем индикатор загрузки
