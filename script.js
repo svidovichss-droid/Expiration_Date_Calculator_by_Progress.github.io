@@ -1,648 +1,852 @@
-/* Jekyll Architect Theme Styles - Light Theme */
-:root {
-    --primary-color: #3498db;
-    --secondary-color: #2980b9;
-    --accent-color: #e74c3c;
-    --light-color: #ffffff;
-    --dark-color: #2c3e50;
-    --text-color: #2c3e50;
-    --border-color: #e1e8ed;
-    --shadow-color: rgba(0, 0, 0, 0.08);
-    --success-color: #27ae60;
-    --warning-color: #f39c12;
-    --error-color: #e74c3c;
-    --info-color: #3498db;
-    --background-color: #f8fafc;
-    --card-background: #ffffff;
-    --header-background: #1a1a2e;
-    --footer-background: #1a1a2e;
-    --header-text-color: #ffffff;
-    --footer-text-color: #ffffff;
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-/* ОСНОВНЫЕ ИЗМЕНЕНИЯ ДЛЯ ПОДВАЛА И ШАПКИ */
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: var(--text-color);
-    background-color: var(--background-color);
-    line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
-    flex: 1;
-}
-
-/* Header styles - ТЁМНАЯ ШАПКА (ИСПРАВЛЕНА) */
-.header {
-    background: linear-gradient(135deg, var(--header-background) 0%, #16213e 100%);
-    color: var(--header-text-color);
-    padding: 2rem 0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    position: relative;
-    overflow: visible; /* Изменено с hidden на visible */
-    border-bottom: none;
-    width: 100%;
-    margin: 0;
-}
-
-.header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%233498db' fill-opacity='0.1' d='M0,128L48,117.3C96,107,192,85,288,112C384,139,480,213,576,218.7C672,224,768,160,864,138.7C960,117,1056,139,1152,138.7C1248,139,1344,117,1392,106.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
-    background-size: cover;
-    background-position: center;
-    opacity: 0.3;
-}
-
-.header-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    min-height: auto;
-}
-
-.header h1 {
-    color: var(--header-text-color);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    margin: 0;
-    font-size: 2rem;
-    line-height: 1.2;
-}
-
-.header p {
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0.5rem 0 0 0;
-    font-size: 1.1rem;
-}
-
-.logo {
-    color: var(--header-text-color);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    text-align: right;
-}
-
-.logo div:first-child {
-    font-size: 1.8rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.25rem;
-}
-
-.logo div:last-child {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
-}
-
-/* Основной контент - исправленные отступы */
-.main-content {
-    flex: 1;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-}
-
-.container.mt-4 {
-    margin-top: 2rem !important;
-    padding-bottom: 2rem;
-}
-
-/* Card styles */
-.card {
-    background: var(--card-background);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px var(--shadow-color);
-    overflow: hidden;
-    transition: box-shadow 0.3s ease, transform 0.2s ease;
-    margin-bottom: 2rem;
-    border: 1px solid var(--border-color);
-}
-
-.card:hover {
-    box-shadow: 0 8px 25px var(--shadow-color);
-    transform: translateY(-2px);
-}
-
-.card-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.card-body {
-    padding: 1.5rem;
-}
-
-/* Minimalistic print button */
-.print-btn-minimal {
-    background: #f8fafc;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 0.75rem;
-    color: #4b5563;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 0.5rem;
-}
-
-.print-btn-minimal:hover:not(:disabled) {
-    background: #e5e7eb;
-    border-color: #9ca3af;
-    color: #374151;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.print-btn-minimal:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.print-btn-minimal:disabled {
-    background: #f3f4f6;
-    color: #9ca3af;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-.print-btn-minimal i {
-    font-size: 1.25rem;
-}
-
-/* Show print button only when there's something to print */
-.print-btn-minimal.active {
-    display: flex !important;
-}
-
-/* Form elements */
-input, select, textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    font-family: inherit;
-    background-color: var(--light-color);
-    color: var(--text-color);
-}
-
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
-input[readonly] {
-    background-color: #f8f9fa;
-    color: #6c757d;
-    cursor: not-allowed;
-}
-
-input:disabled {
-    background-color: #e9ecef;
-    color: #6c757d;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* Button styles */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px var(--shadow-color);
-    text-decoration: none;
-    font-family: inherit;
-}
-
-.btn:hover {
-    background-color: var(--secondary-color);
-    box-shadow: 0 4px 12px var(--shadow-color);
-    transform: translateY(-1px);
-}
-
-.btn:active {
-    box-shadow: 0 2px 4px var(--shadow-color);
-    transform: translateY(0);
-}
-
-.btn:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-}
-
-.btn-primary:hover {
-    background-color: var(--secondary-color);
-}
-
-.btn-success {
-    background-color: var(--success-color);
-}
-
-.btn-success:hover {
-    background-color: #219653;
-}
-
-.btn-large {
-    padding: 1rem 2rem;
-    font-size: 1.25rem;
-}
-
-/* Grid system */
-.grid {
-    display: grid;
-    gap: 1.5rem;
-}
-
-.grid-2 {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-
-/* Utility classes */
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-left { text-align: left; }
-
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-3 { margin-top: 0.75rem; }
-.mt-4 { margin-top: 1rem; }
-.mt-5 { margin-top: 1.5rem; }
-
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-3 { margin-bottom: 0.75rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-5 { margin-bottom: 1.5rem; }
-
-.ml-1 { margin-left: 0.25rem; }
-.ml-2 { margin-left: 0.5rem; }
-.ml-3 { margin-left: 0.75rem; }
-.ml-4 { margin-left: 1rem; }
-.ml-5 { margin-left: 1.5rem; }
-
-.mr-1 { margin-right: 0.25rem; }
-.mr-2 { margin-right: 0.5rem; }
-.mr-3 { margin-right: 0.75rem; }
-.mr-4 { margin-right: 1rem; }
-.mr-5 { margin-right: 1.5rem; }
-
-.p-1 { padding: 0.25rem; }
-.p-2 { padding: 0.5rem; }
-.p-3 { padding: 0.75rem; }
-.p-4 { padding: 1rem; }
-.p-5 { padding: 1.5rem; }
-
-.hidden { display: none; }
-.block { display: block; }
-.inline-block { display: inline-block; }
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.justify-center { justify-content: center; }
-
-.w-full { width: 100%; }
-.h-full { height: 100%; }
-
-.relative { position: relative; }
-.absolute { position: absolute; }
-.fixed { position: fixed; }
-
-.z-10 { z-index: 10; }
-.z-20 { z-index: 20; }
-.z-30 { z-index: 30; }
-.z-40 { z-index: 40; }
-.z-50 { z-index: 50; }
-
-.overflow-hidden { overflow: hidden; }
-.overflow-y-auto { overflow-y: auto; }
-
-.cursor-pointer { cursor: pointer; }
-.cursor-not-allowed { cursor: not-allowed; }
-
-.opacity-90 { opacity: 0.9; }
-.opacity-70 { opacity: 0.7; }
-.opacity-50 { opacity: 0.5; }
-
-.rounded { border-radius: 0.25rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.rounded-xl { border-radius: 0.75rem; }
-
-.shadow { box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px 0 rgba(0, 0, 0, 0.04); }
-.shadow-md { box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px rgba(0, 0, 0, 0.04); }
-.shadow-lg { box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px rgba(0, 0, 0, 0.03); }
-
-.border { border-width: 1px; }
-.border-b { border-bottom-width: 1px; }
-.border-t { border-top-width: 1px; }
-.border-l { border-left-width: 1px; }
-.border-r { border-right-width: 1px; }
-
-.border-gray-100 { border-color: #f7fafc; }
-.border-gray-200 { border-color: #edf2f7; }
-.border-gray-300 { border-color: #e2e8f0; }
-.border-blue-200 { border-color: #bee3f8; }
-.border-blue-300 { border-color: #90cdf4; }
-.border-yellow-200 { border-color: #fefcbf; }
-.border-yellow-500 { border-color: #ecc94b; }
-.border-purple-200 { border-color: #e9d8fd; }
-
-.bg-white { background-color: white; }
-.bg-gray-100 { background-color: #f7fafc; }
-.bg-blue-50 { background-color: #ebf8ff; }
-.bg-blue-100 { background-color: #bee3f8; }
-.bg-yellow-50 { background-color: #fffff0; }
-.bg-yellow-100 { background-color: #fefcbf; }
-.bg-green-50 { background-color: #f0fff4; }
-.bg-red-50 { background-color: #fff5f5; }
-.bg-purple-50 { background-color: #faf5ff; }
-
-.text-white { color: white; }
-.text-gray-500 { color: #6b7280; }
-.text-gray-700 { color: #374151; }
-.text-blue-500 { color: #3b82f6; }
-.text-blue-600 { color: #2563eb; }
-.text-blue-700 { color: #1d4ed8; }
-.text-blue-800 { color: #1e40af; }
-.text-yellow-600 { color: #d97706; }
-.text-yellow-700 { color: #b45309; }
-.text-green-700 { color: #047857; }
-.text-red-700 { color: #b91c1c; }
-.text-purple-600 { color: #7c3aed; }
-.text-purple-800 { color: #5b21b6; }
-
-.text-sm { font-size: 0.875rem; }
-.text-base { font-size: 1rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-2xl { font-size: 1.5rem; }
-.text-3xl { font-size: 1.875rem; }
-
-.font-medium { font-weight: 500; }
-.font-bold { font-weight: 700; }
-
-/* Animations */
-.fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.slide-in {
-    animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
+// Конфигурация приложения
+const CONFIG = {
+    JSON_URL: 'https://raw.githubusercontent.com/svidovichss-droid/ProgressSAP.github.io/main/data.json',
+    CACHE_KEY: 'products_cache',
+    ETAG_KEY: 'products_etag',
+    CACHE_EXPIRY: 24 * 60 * 60 * 1000, // 24 часа в миллисекундах
+    FALLBACK_DATA: [
+        {
+            "Код продукции": "000001",
+            "Полное наименование (русское)": "Тестовый продукт 1",
+            "Срок годности": 365,
+            "Штук в упаковке": 10,
+            "Штрихкод упаковки": "1234567890123",
+            "Производитель": "Тестовый производитель",
+            "Название стандарта": "ГОСТ 12345-2020"
+        },
+        {
+            "Код продукции": "000002",
+            "Полное наименование (русское)": "Тестовый продукт 2",
+            "Срок годности": 180,
+            "Штук в упаковке": 5,
+            "Штрихкод упаковки": "9876543210987",
+            "Производитель": "Другой производитель",
+            "Название стандарта": "ТУ 45678-2021"
+        }
+    ]
+};
+
+// Глобальные переменные
+let products = {};
+let warningMessageAdded = false;
+let isOnline = true;
+
+// DOM elements
+const productSearch = document.getElementById('productSearch');
+const searchResults = document.getElementById('searchResults');
+const standardNotificationContainer = document.getElementById('standardNotificationContainer');
+const dataStatus = document.getElementById('dataStatus');
+const offlineStatus = document.getElementById('offlineStatus');
+const calculateButton = document.getElementById('calculateButton');
+const printButton = document.getElementById('printButton');
+const refreshFooterButton = document.getElementById('refreshFooterButton');
+const lastUpdateInfo = document.getElementById('lastUpdateInfo');
+const lastUpdateTime = document.getElementById('lastUpdateTime');
+
+// Регистрация Service Worker
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(function(registration) {
+                console.log('Service Worker зарегистрирован успешно:', registration.scope);
+                
+                // Проверяем наличие обновлений Service Worker
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('Обнаружено обновление Service Worker');
+                    
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('Новая версия Service Worker установлена');
+                            showNotification('Доступно обновление приложения. Перезагрузите страницу.', 'info');
+                        }
+                    });
+                });
+            })
+            .catch(function(error) {
+                console.log('Ошибка регистрации Service Worker:', error);
+            });
+
+        // Отслеживаем изменения Service Worker
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('Service Worker контроллер изменился');
+            window.location.reload();
+        });
     }
 }
 
-.slide-up {
-    animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
+// Проверка онлайн статуса
+function checkOnlineStatus() {
+    isOnline = navigator.onLine;
+    if (!isOnline && offlineStatus) {
+        offlineStatus.classList.remove('hidden');
+        showNotification('Работаем в автономном режиме', 'warning');
+    } else if (offlineStatus) {
+        offlineStatus.classList.add('hidden');
+        if (isOnline) {
+            showNotification('Подключение к интернету восстановлено', 'success');
+        }
     }
-    to {
-        transform: translateY(0);
-        opacity: 1;
+    return isOnline;
+}
+
+// Утилиты для работы с кэшем
+const cacheUtils = {
+    // Сохранить данные в кэш
+    saveToCache: (data, etag = null) => {
+        try {
+            const cacheData = {
+                timestamp: Date.now(),
+                data: data,
+                etag: etag,
+                lastUpdate: new Date().toLocaleString('ru-RU')
+            };
+            localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify(cacheData));
+            console.log('Данные сохранены в кэш');
+            
+            if (etag) {
+                localStorage.setItem(CONFIG.ETAG_KEY, etag);
+            }
+            
+            // Обновляем информацию о последнем обновлении
+            updateLastUpdateInfo(cacheData.lastUpdate);
+        } catch (error) {
+            console.error('Ошибка сохранения в кэш:', error);
+        }
+    },
+
+    // Получить данные из кэша
+    getFromCache: () => {
+        try {
+            const cached = localStorage.getItem(CONFIG.CACHE_KEY);
+            if (!cached) return null;
+
+            const cacheData = JSON.parse(cached);
+            const isExpired = Date.now() - cacheData.timestamp > CONFIG.CACHE_EXPIRY;
+
+            // Показываем информацию о последнем обновлении
+            if (cacheData.lastUpdate) {
+                updateLastUpdateInfo(cacheData.lastUpdate);
+            }
+
+            return {
+                data: cacheData.data,
+                etag: cacheData.etag,
+                isExpired: isExpired,
+                lastUpdate: cacheData.lastUpdate
+            };
+        } catch (error) {
+            console.error('Ошибка чтения из кэша:', error);
+            return null;
+        }
+    },
+
+    // Получить ETag из localStorage
+    getEtag: () => {
+        try {
+            return localStorage.getItem(CONFIG.ETAG_KEY);
+        } catch (error) {
+            console.error('Ошибка чтения ETag:', error);
+            return null;
+        }
+    },
+
+    // Очистить кэш
+    clearCache: () => {
+        try {
+            localStorage.removeItem(CONFIG.CACHE_KEY);
+            localStorage.removeItem(CONFIG.ETAG_KEY);
+            console.log('Кэш очищен');
+            hideLastUpdateInfo();
+        } catch (error) {
+            console.error('Ошибка очистки кэша:', error);
+        }
+    },
+
+    // Сохранить fallback данные
+    saveFallbackData: () => {
+        try {
+            const cacheData = {
+                timestamp: Date.now(),
+                data: CONFIG.FALLBACK_DATA,
+                etag: 'fallback',
+                lastUpdate: new Date().toLocaleString('ru-RU') + ' (офлайн)'
+            };
+            localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify(cacheData));
+            console.log('Fallback данные сохранены в кэш');
+            
+            updateLastUpdateInfo(cacheData.lastUpdate);
+        } catch (error) {
+            console.error('Ошибка сохранения fallback данных:', error);
+        }
+    }
+};
+
+// Обновить информацию о последнем обновлении
+function updateLastUpdateInfo(timeString) {
+    if (lastUpdateInfo && lastUpdateTime) {
+        lastUpdateTime.textContent = timeString;
+        lastUpdateInfo.classList.remove('hidden');
     }
 }
 
-/* Loading spinner */
-.loading-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-right: 10px;
+// Скрыть информацию о последнем обновлении
+function hideLastUpdateInfo() {
+    if (lastUpdateInfo) {
+        lastUpdateInfo.classList.add('hidden');
+    }
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+// Показать анимацию загрузки на кнопке обновления в футере
+function showRefreshLoading() {
+    if (refreshFooterButton) {
+        refreshFooterButton.classList.add('refreshing');
+        refreshFooterButton.disabled = true;
+    }
 }
 
-/* Footer - ТЁМНЫЙ ПОДВАЛ */
-.footer {
-    background: linear-gradient(135deg, var(--footer-background) 0%, #16213e 100%);
-    color: var(--footer-text-color);
-    padding: 2rem 0;
-    text-align: center;
-    margin-top: auto;
-    border-top: none;
-    width: 100%;
-    flex-shrink: 0;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+// Скрыть анимацию загрузки на кнопке обновления в футере
+function hideRefreshLoading() {
+    if (refreshFooterButton) {
+        refreshFooterButton.classList.remove('refreshing');
+        refreshFooterButton.disabled = false;
+    }
 }
 
-.footer p {
-    color: rgba(255, 255, 255, 0.9);
+// Проверка обновлений на сервере
+async function checkForUpdates(cachedEtag) {
+    try {
+        // Если оффлайн, не проверяем обновления
+        if (!checkOnlineStatus()) {
+            console.log('Оффлайн режим, пропускаем проверку обновлений');
+            return false;
+        }
+
+        const response = await fetch(CONFIG.JSON_URL, {
+            method: 'HEAD',
+            headers: cachedEtag ? { 'If-None-Match': cachedEtag } : {},
+            cache: 'no-cache'
+        });
+
+        if (response.status === 304) {
+            console.log('Данные не изменились на сервере');
+            return false; // Нет обновлений
+        }
+
+        if (response.status === 200) {
+            const newEtag = response.headers.get('ETag');
+            if (newEtag && newEtag !== cachedEtag) {
+                console.log('Обнаружены обновления на сервере');
+                return true; // Есть обновления
+            }
+        }
+
+        return false;
+    } catch (error) {
+        console.error('Ошибка проверки обновлений:', error);
+        return false; // При ошибке считаем, что обновлений нет
+    }
 }
 
-.footer a {
-    color: rgba(255, 255, 255, 0.8);
-    transition: color 0.3s ease;
+// Загрузка данных о продуктах
+async function loadProductsData() {
+    try {
+        // Показываем индикатор загрузки
+        if (dataStatus) dataStatus.classList.remove('hidden');
+        
+        // Проверяем онлайн статус
+        checkOnlineStatus();
+        
+        // Проверяем кэш
+        const cached = cacheUtils.getFromCache();
+        const cachedEtag = cacheUtils.getEtag();
+        
+        let shouldUseCache = false;
+        let shouldUpdateCache = false;
+
+        if (cached && !cached.isExpired) {
+            // Кэш актуален, проверяем обновления на сервере (только если онлайн)
+            if (isOnline) {
+                const hasUpdates = await checkForUpdates(cachedEtag);
+                
+                if (!hasUpdates) {
+                    console.log('Используем актуальные данные из кэша');
+                    processProductsData(cached.data);
+                    shouldUseCache = true;
+                } else {
+                    console.log('Обнаружены обновления, загружаем новые данные');
+                    shouldUpdateCache = true;
+                }
+            } else {
+                // Оффлайн режим - используем кэш
+                console.log('Оффлайн режим, используем данные из кэша');
+                processProductsData(cached.data);
+                shouldUseCache = true;
+            }
+        } else if (cached) {
+            // Кэш просрочен, но данные есть
+            if (isOnline) {
+                console.log('Кэш просрочен, проверяем обновления');
+                const hasUpdates = await checkForUpdates(cachedEtag);
+                
+                if (!hasUpdates) {
+                    console.log('Обновлений нет, обновляем timestamp кэша');
+                    cacheUtils.saveToCache(cached.data, cachedEtag);
+                    processProductsData(cached.data);
+                    shouldUseCache = true;
+                } else {
+                    console.log('Обнаружены обновления, загружаем новые данные');
+                    shouldUpdateCache = true;
+                }
+            } else {
+                // Оффлайн режим - используем просроченный кэш
+                console.log('Оффлайн режим, используем просроченные данные из кэша');
+                processProductsData(cached.data);
+                shouldUseCache = true;
+            }
+        } else {
+            // Нет кэша
+            if (isOnline) {
+                console.log('Кэш отсутствует, загружаем данные с сервера');
+                shouldUpdateCache = true;
+            } else {
+                // Оффлайн и нет кэша - используем fallback данные
+                console.log('Оффлайн режим и нет кэша, используем fallback данные');
+                cacheUtils.saveFallbackData();
+                processProductsData(CONFIG.FALLBACK_DATA);
+                showNotification('Работаем в автономном режиме с тестовыми данными', 'warning');
+                shouldUseCache = true;
+            }
+        }
+
+        // Загружаем новые данные если нужно
+        if (shouldUpdateCache) {
+            const response = await fetch(CONFIG.JSON_URL, {
+                cache: 'no-cache'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const productsData = await response.json();
+            const newEtag = response.headers.get('ETag');
+            
+            // Сохраняем в кэш
+            cacheUtils.saveToCache(productsData, newEtag);
+            
+            // Обрабатываем данные
+            processProductsData(productsData);
+            
+            // Показываем уведомление об успешной загрузке
+            if (cached) {
+                showNotification('Данные успешно обновлены', 'success');
+            }
+        }
+
+    } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        
+        // Пытаемся использовать кэш, даже если он просрочен
+        const cached = cacheUtils.getFromCache();
+        if (cached) {
+            console.log('Используем данные из кэша из-за ошибки сети');
+            processProductsData(cached.data);
+            showNotification('Не удалось загрузить актуальные данные. Используются кэшированные данные.', 'warning');
+        } else {
+            // Нет кэша и не удалось загрузить данные - используем fallback
+            console.log('Нет кэша, используем fallback данные');
+            cacheUtils.saveFallbackData();
+            processProductsData(CONFIG.FALLBACK_DATA);
+            showNotification('Не удалось загрузить данные. Используются тестовые данные.', 'error');
+        }
+    } finally {
+        // Скрываем индикатор загрузки
+        if (dataStatus) {
+            dataStatus.classList.add('hidden');
+        }
+    }
 }
 
-.footer a:hover {
-    color: var(--primary-color);
+// Обработка данных о продуктах
+function processProductsData(productsData) {
+    products = {}; // Очищаем предыдущие данные
+    
+    // Преобразуем массив в объект для быстрого поиска по коду
+    productsData.forEach(product => {
+        products[product["Код продукции"]] = {
+            "Полное наименование (русское)": product["Полное наименование (русское)"],
+            "Срок годности": product["Срок годности"],
+            "Штук в упаковке": product["Штук в упаковке"],
+            "Штрихкод упаковки": product["Штрихкод упаковки"],
+            "Производитель": product["Производитель"],
+            "Название стандарта": product["Название стандарта"]
+        };
+    });
+    
+    // Активируем поля ввода
+    activateInputFields();
 }
 
-/* Responsive design - исправления для мобильных устройств */
-@media (max-width: 768px) {
-    .container {
-        padding: 0 10px;
+// Активация полей ввода
+function activateInputFields() {
+    if (productSearch) productSearch.disabled = false;
+    if (calculateButton) calculateButton.disabled = false;
+    if (printButton) printButton.classList.remove('hidden');
+}
+
+// Принудительное обновление данных
+async function forceRefreshData() {
+    console.log('Принудительное обновление данных');
+    
+    if (!checkOnlineStatus()) {
+        showNotification('Нет подключения к интернету. Обновление невозможно.', 'error');
+        return;
     }
     
-    .header {
-        padding: 1.5rem 0;
-    }
+    // Показываем анимацию загрузки
+    showRefreshLoading();
     
-    .header-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-        padding: 0 1rem;
-    }
-    
-    .header h1 {
-        font-size: 1.75rem;
-        line-height: 1.3;
-    }
-    
-    .header p {
-        font-size: 1rem;
-    }
-    
-    .logo {
-        text-align: center;
-        margin-top: 0.5rem;
-    }
-    
-    .logo div:first-child {
-        font-size: 1.5rem;
-    }
-    
-    .logo div:last-child {
-        font-size: 0.8rem;
-    }
-    
-    .container.mt-4 {
-        margin-top: 1.5rem !important;
-        padding: 0 1rem;
-    }
-    
-    .grid-2 {
-        grid-template-columns: 1fr;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    .print-btn-minimal {
-        width: 44px;
-        height: 44px;
-        padding: 0.65rem;
-    }
-    
-    .notification-message {
-        top: 0.5rem;
-        right: 0.5rem;
-        left: 0.5rem;
-        max-width: none;
-    }
-    
-    .pwa-install-prompt {
-        bottom: 10px;
-        right: 10px;
-        left: 10px;
-        max-width: none;
-    }
-    
-    .search-results-container {
-        max-height: 200px;
-    }
-    
-    .footer .flex {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    
-    .footer .flex.space-x-4 {
-        flex-direction: row;
-        justify-content: center;
-    }
-    
-    .footer .text-sm {
-        font-size: 0.8rem;
+    try {
+        // Очищаем кэш и загружаем заново
+        cacheUtils.clearCache();
+        await loadProductsData();
+        showNotification('Данные успешно обновлены', 'success');
+    } catch (error) {
+        console.error('Ошибка при обновлении данных:', error);
+        showNotification('Ошибка при обновлении данных', 'error');
+    } finally {
+        // Скрываем анимацию загрузки
+        hideRefreshLoading();
     }
 }
 
-@media (max-width: 480px) {
-    .header {
-        padding: 1.25rem 0;
+// Поиск продуктов
+if (productSearch) {
+    productSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        if (searchResults) searchResults.innerHTML = '';
+        if (standardNotificationContainer) standardNotificationContainer.innerHTML = '';
+        
+        if (searchTerm.length < 2) {
+            if (searchResults) searchResults.classList.add('hidden');
+            clearFields();
+            return;
+        }
+
+        let resultsFound = false;
+
+        for (const code in products) {
+            const product = products[code];
+            if (code.includes(searchTerm) ||
+                product["Полное наименование (русское)"].toLowerCase().includes(searchTerm)) {
+
+                const div = document.createElement('div');
+                div.className = 'p-3 hover:bg-blue-50 cursor-pointer flex items-center border-b border-gray-100 last:border-0';
+                div.setAttribute('role', 'option');
+                div.innerHTML = `
+                <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                  <i class="fas fa-box text-blue-600"></i>
+                </div>
+                <div>
+                  <div class="font-medium text-blue-800">${product["Полное наименование (русское)"]}</div>
+                  <div class="text-sm text-gray-500">Код: <span class="product-code">${code}</span> | Срок: <span class="shelf-life">${product["Срок годности"]} дней</span></div>
+                </div>
+                `;
+                div.onclick = function() {
+                    selectProduct(code);
+                };
+                if (searchResults) searchResults.appendChild(div);
+                resultsFound = true;
+            }
+        }
+
+        if (searchResults) {
+            if (resultsFound) {
+                searchResults.classList.remove('hidden');
+            } else {
+                const noResults = document.createElement('div');
+                noResults.className = 'p-3 text-gray-500 text-center';
+                noResults.textContent = 'Ничего не найдено';
+                noResults.setAttribute('role', 'option');
+                searchResults.appendChild(noResults);
+                searchResults.classList.remove('hidden');
+            }
+        }
+    });
+}
+
+// Очистка полей
+function clearFields() {
+    const fields = [
+        'productCode', 'productName', 'shelfLife', 
+        'quantityPerPack', 'groupBarcode', 'manufacturerBarcode'
+    ];
+    
+    fields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element) element.value = '';
+    });
+    
+    const warningMsg = document.getElementById('warningMessage');
+    if (warningMsg) {
+        warningMsg.remove();
+        warningMessageAdded = false;
     }
     
-    .header h1 {
-        font-size: 1.5rem;
-    }
-    
-    .header p {
-        font-size: 0.9rem;
-    }
-    
-    .card-header {
-        padding: 1rem;
-    }
-    
-    .btn-large {
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
-    
-    .pwa-install-actions {
-        flex-direction: column;
-    }
-    
-    .container.mt-4 {
-        margin-top: 1rem !important;
-    }
-    
-    .print-btn-minimal {
-        width: 40px;
-        height: 40px;
-        padding: 0.6rem;
-    }
-    
-    .print-btn-minimal i {
-        font-size: 1.1rem;
+    // Деактивируем кнопку печати при очистке полей
+    if (printButton) {
+        printButton.disabled = true;
     }
 }
+
+// Закрытие результатов поиска при клике вне области
+document.addEventListener('click', function(e) {
+    if (productSearch && searchResults) {
+        if (!productSearch.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add('hidden');
+        }
+    }
+});
+
+// Выбор продукта из результатов поиска
+function selectProduct(code) {
+    const product = products[code];
+    
+    const productCodeElem = document.getElementById('productCode');
+    const productNameElem = document.getElementById('productName');
+    const shelfLifeElem = document.getElementById('shelfLife');
+    const quantityPerPackElem = document.getElementById('quantityPerPack');
+    const groupBarcodeElem = document.getElementById('groupBarcode');
+    const manufacturerBarcodeElem = document.getElementById('manufacturerBarcode');
+    
+    if (productCodeElem) productCodeElem.value = code;
+    if (productNameElem) productNameElem.value = product["Полное наименование (русское)"];
+    if (shelfLifeElem) shelfLifeElem.value = product["Срок годности"];
+    if (quantityPerPackElem) quantityPerPackElem.value = product["Штук в упаковке"] || "";
+    if (groupBarcodeElem) groupBarcodeElem.value = product["Штрихкод упаковки"] || "";
+    if (manufacturerBarcodeElem) manufacturerBarcodeElem.value = product["Производитель"] || "";
+
+    if (productSearch) productSearch.value = '';
+    if (searchResults) searchResults.classList.add('hidden');
+
+    if (product["Название стандарта"] && standardNotificationContainer) {
+        showStandardNotification("Статус: " + product["Название стандарта"]);
+    }
+    
+    // Активируем кнопку печати при выборе продукта
+    if (printButton) {
+        printButton.disabled = false;
+    }
+    
+    if (!warningMessageAdded) {
+        const warningMessage = document.createElement('div');
+        warningMessage.id = 'warningMessage';
+        warningMessage.className = 'mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700';
+        warningMessage.textContent = 'Важно! Для завершения процесса нажмите кнопку "Рассчитать срок годности".';
+        
+        const calculateButton = document.querySelector('button[onclick="calculateExpiry()"]');
+        if (calculateButton) {
+            calculateButton.parentNode.insertBefore(warningMessage, calculateButton);
+            warningMessageAdded = true;
+        }
+    }
+}
+
+// Показать стандартное уведомление
+function showStandardNotification(standard) {
+    if (!standardNotificationContainer) return;
+    
+    standardNotificationContainer.innerHTML = '';
+    
+    if (!standard || standard === 'Не указано') return;
+    
+    const notification = document.createElement('div');
+    notification.className = 'p-3 rounded-lg shadow-md bg-blue-100 border border-blue-300 text-blue-800 slide-in';
+    notification.setAttribute('aria-live', 'polite');
+    notification.innerHTML = `
+        <div class="flex items-start">
+            <div class="flex-grow break-words">${standard}</div>
+        </div>
+    `;
+    standardNotificationContainer.appendChild(notification);
+}
+
+// Расчет срока годности
+function calculateExpiry() {
+    const shelfLifeElem = document.getElementById('shelfLife');
+    const productionDateElem = document.getElementById('productionDate');
+    const expiryDateElem = document.getElementById('expiryDate');
+    const resultDiv = document.getElementById('result');
+    
+    if (!shelfLifeElem || !productionDateElem || !expiryDateElem || !resultDiv) return;
+    
+    const shelfLife = parseInt(shelfLifeElem.value);
+    const productionDate = productionDateElem.value;
+
+    if (!shelfLife || !productionDate) {
+        showNotification('Пожалуйста, выберите продукт и укажите дату производства', 'error');
+        return;
+    }
+
+    const production = new Date(productionDate);
+    const expiryDate = new Date(production);
+    expiryDate.setDate(production.getDate() + shelfLife);
+
+    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    const formattedDate = expiryDate.toLocaleDateString('ru-RU', options);
+
+    expiryDateElem.textContent = formattedDate;
+
+    resultDiv.classList.remove('hidden');
+    resultDiv.classList.add('fade-in');
+
+    const warningMsg = document.getElementById('warningMessage');
+    if (warningMsg) {
+        warningMsg.remove();
+        warningMessageAdded = false;
+    }
+
+    setTimeout(() => {
+        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+}
+
+// Печать результатов
+function printResults() {
+    const productCode = document.getElementById('productCode').value;
+    const productName = document.getElementById('productName').value;
+    const shelfLife = document.getElementById('shelfLife').value;
+    const quantityPerPack = document.getElementById('quantityPerPack').value;
+    const groupBarcode = document.getElementById('groupBarcode').value;
+    const manufacturerBarcode = document.getElementById('manufacturerBarcode').value;
+    const productionDate = document.getElementById('productionDate').value;
+    const expiryDate = document.getElementById('expiryDate').textContent;
+
+    // Проверяем, есть ли данные для печати
+    if (!productCode || !productName) {
+        showNotification('Нет данных для печати. Сначала выберите продукт.', 'error');
+        return;
+    }
+
+    // Создаем содержимое для печати
+    const printContent = `
+        <!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Расчет срока годности</title>
+            <style>
+                @page {
+                    size: A4 landscape;
+                    margin: 15mm;
+                }
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    color: #000;
+                }
+                .print-header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid #333;
+                    padding-bottom: 15px;
+                }
+                .print-header h1 {
+                    margin: 0;
+                    font-size: 24px;
+                    color: #2c3e50;
+                }
+                .print-info {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 30px;
+                }
+                .print-info th, .print-info td {
+                    border: 1px solid #ddd;
+                    padding: 12px;
+                    text-align: left;
+                }
+                .print-info th {
+                    background-color: #f8f9fa;
+                    font-weight: bold;
+                    width: 30%;
+                }
+                .print-info td {
+                    background-color: #fff;
+                }
+                .print-result {
+                    background-color: #e8f4fd;
+                    border: 2px solid #3498db;
+                    border-radius: 8px;
+                    padding: 20px;
+                    margin: 20px 0;
+                    text-align: center;
+                }
+                .print-result h3 {
+                    margin: 0 0 10px 0;
+                    color: #2c3e50;
+                }
+                .print-result .expiry-date {
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: #e74c3c;
+                }
+                .print-footer {
+                    margin-top: 40px;
+                    text-align: right;
+                    font-size: 12px;
+                    color: #666;
+                    border-top: 1px solid #ddd;
+                    padding-top: 10px;
+                }
+                .company-info {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #2c3e50;
+                }
+                @media print {
+                    body {
+                        padding: 0;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="company-info">АО "ПРОГРЕСС"</div>
+            
+            <div class="print-header">
+                <h1>РАСЧЕТ СРОКА ГОДНОСТИ ПРОДУКЦИИ</h1>
+            </div>
+
+            <table class="print-info">
+                <tr>
+                    <th>Код продукции</th>
+                    <td>${productCode}</td>
+                </tr>
+                <tr>
+                    <th>Наименование продукции</th>
+                    <td>${productName}</td>
+                </tr>
+                <tr>
+                    <th>Срок годности</th>
+                    <td>${shelfLife} дней</td>
+                </tr>
+                <tr>
+                    <th>Штук в упаковке</th>
+                    <td>${quantityPerPack || 'Не указано'}</td>
+                </tr>
+                <tr>
+                    <th>Штрихкод упаковки</th>
+                    <td>${groupBarcode || 'Не указано'}</td>
+                </tr>
+                <tr>
+                    <th>Производитель</th>
+                    <td>${manufacturerBarcode || 'Не указано'}</td>
+                </tr>
+                <tr>
+                    <th>Дата производства</th>
+                    <td>${productionDate}</td>
+                </tr>
+            </table>
+
+            <div class="print-result">
+                <h3>Дата окончания срока годности:</h3>
+                <div class="expiry-date">${expiryDate || 'Не рассчитано'}</div>
+            </div>
+
+            <div class="print-footer">
+                Дата и время печати: ${new Date().toLocaleString('ru-RU')}
+            </div>
+        </body>
+        </html>
+    `;
+
+    // Открываем новое окно для печати
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+
+    // Запускаем печать после загрузки содержимого
+    printWindow.onload = function() {
+        printWindow.print();
+        // Закрываем окно после печати
+        setTimeout(function() {
+            printWindow.close();
+        }, 100);
+    };
+}
+
+// Показать уведомление
+function showNotification(message, type) {
+    const existingNotifications = document.querySelectorAll('.notification-message');
+    existingNotifications.forEach(notification => notification.remove());
+
+    const notification = document.createElement('div');
+    notification.className = `notification-message fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform translate-x-0 opacity-100 ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'warning' ? 'bg-yellow-500' : 
+        type === 'info' ? 'bg-blue-500' : 'bg-red-500'
+    }`;
+    notification.setAttribute('aria-live', 'assertive');
+    notification.innerHTML = `
+    <div class="flex items-center">
+      <i class="fas ${
+          type === 'success' ? 'fa-check-circle' : 
+          type === 'warning' ? 'fa-exclamation-triangle' : 
+          type === 'info' ? 'fa-info-circle' : 'fa-exclamation-circle'
+      } mr-2"></i>
+      ${message}
+    </div>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    // Устанавливаем сегодняшнюю дату по умолчанию
+    const productionDateElem = document.getElementById('productionDate');
+    if (productionDateElem) {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+
+        productionDateElem.value = `${year}-${month}-${day}`;
+    }
+    
+    // Регистрируем Service Worker
+    registerServiceWorker();
+    
+    // Слушатели событий онлайн/оффлайн
+    window.addEventListener('online', () => {
+        console.log('Онлайн статус: онлайн');
+        checkOnlineStatus();
+        // Автоматически обновляем данные при восстановлении соединения
+        setTimeout(() => {
+            loadProductsData();
+        }, 1000);
+    });
+    
+    window.addEventListener('offline', () => {
+        console.log('Онлайн статус: оффлайн');
+        checkOnlineStatus();
+    });
+    
+    // Загружаем данные о продуктах
+    loadProductsData();
+});
+
+// Экспортируем функции для глобального использования
+window.calculateExpiry = calculateExpiry;
+window.forceRefreshData = forceRefreshData;
+window.printResults = printResults;
