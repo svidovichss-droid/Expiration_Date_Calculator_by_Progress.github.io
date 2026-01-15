@@ -23,13 +23,29 @@ const CONFIG = {
             "Производитель": "Другой производитель",
             "Название стандарта": "ТУ 45678-2021"
         }
-    ]
+    ],
+    SEARCH_CONFIG: {
+        MIN_QUERY_LENGTH: 2,
+        MAX_RESULTS: 20,
+        FUZZY_THRESHOLD: 0.7,
+        WEIGHTS: {
+            CODE_EXACT: 10,
+            CODE_PARTIAL: 5,
+            NAME_EXACT: 8,
+            NAME_PARTIAL: 3,
+            MANUFACTURER: 2,
+            STANDARD: 1
+        }
+    }
 };
 
 // Глобальные переменные
 let products = {};
 let warningMessageAdded = false;
 let isOnline = true;
+let searchIndex = [];
+let searchTimeout = null;
+let lastSearchResults = [];
 
 // DOM elements
 const productSearch = document.getElementById('productSearch');
@@ -43,6 +59,179 @@ const refreshFooterButton = document.getElementById('refreshFooterButton');
 const lastUpdateInfo = document.getElementById('lastUpdateInfo');
 const lastUpdateTime = document.getElementById('lastUpdateTime');
 
+// Вспомогательные функции для интеллектуального поиска
+const SearchUtils = {
+    // Нормализация текста для поиска
+    normalizeText: (text) => {
+        if (!text) return '';
+        return text
+            .toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Удаляем диакритические знаки
+            .replace(/[^\wа-яА-ЯёЁ0-9\s]/g, ' ') // Заменяем спецсимволы на пробелы
+            .replace(/\s+/g, ' ') // Удаляем лишние пробелы
+            .trim();
+    },
+
+    // Вычисление расстояния Левенштейна для нечеткого поиска
+    levenshteinDistance: (a, b) => {
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+
+        const matrix = [];
+
+        for (let i = 0; i <= b.length; i++) {
+            matrix[i] = [i];
+        }
+
+        for (let j = 0; j <= a.length; j++) {
+            matrix[0][j] = j;
+        }
+
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j - 1] + cost
+                );
+            }
+        }
+
+        return matrix[b.length][a.length];
+    },
+
+    // Сходство строк (0-1)
+    stringSimilarity: (a, b) => {
+        if (!a || !b) return 0;
+        const distance = SearchUtils.levenshteinDistance(a, b);
+        const maxLength = Math.max(a.length, b.length);
+        return maxLength === 0 ? 1 : (maxLength - distance) / maxLength;
+    },
+
+    // Поиск вхождения подстроки с учетом транслитерации
+    smartContains: (text, query) => {
+        if (!text || !query) return false;
+        
+        const normalizedText = SearchUtils.normalizeText(text);
+        const normalizedQuery = SearchUtils.normalizeText(query);
+        
+        // Прямое вхождение
+        if (normalizedText.includes(normalizedQuery)) {
+            return true;
+        }
+        
+        // Разбиваем на слова
+        const textWords = normalizedText.split(/\s+/);
+        const queryWords = normalizedQuery.split(/\s+/);
+        
+        // Проверяем все слова запроса
+        for (const queryWord of queryWords) {
+            let found = false;
+            for (const textWord of textWords) {
+                if (textWord.includes(queryWord) || 
+                    SearchUtils.stringSimilarity(textWord, queryWord) > CONFIG.SEARCH_CONFIG.FUZZY_THRESHOLD) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+        
+        return true;
+    },
+
+    // Подсчет релевантности
+    calculateRelevance: (product, query) => {
+        let relevance = 0;
+        const normalizedQuery = SearchUtils.normalizeText(query);
+        
+        // Поиск по коду продукции
+        if (product.code && normalizedQuery) {
+            if (product.code === normalizedQuery) {
+                relevance += CONFIG.SEARCH_CONFIG.WEIGHTS.CODE_EXACT;
+            } else if (product.code.includes(normalizedQuery)) {
+                relevance += CONFIG.SEARCH_CONFIG.WEIGHTS.CODE_PARTIAL;
+            }
+        }
+        
+        // Поиск по названию
+        if (product.normalizedName) {
+            if (product.normalizedName.includes(normalizedQuery)) {
+                relevance += CONFIG.SEARCH_CONFIG.WEIGHTS.NAME_EXACT;
+            } else if (SearchUtils.smartContains(product.name, query)) {
+                relevance += CONFIG.SEARCH_CONFIG.WEIGHTS.NAME_PARTIAL;
+            }
+        }
+        
+        // Поиск по производителю
+        if (product.manufacturer && SearchUtils.smartContains(product.manufacturer, query)) {
+            relevance += CONFIG.SEARCH_CONFIG.WEIGHTS.MANUFACTURER;
+        }
+        
+        // Поиск по стандарту
+        if (product.standard && SearchUtils.smartContains(product.standard, query)) {
+            relevance += CONFIG.SEARCH_CONFIG.WEIGHTS.STANDARD;
+        }
+        
+        return relevance;
+    },
+
+    // Поиск с подсказками (автодополнение)
+    getSearchSuggestions: (query) => {
+        if (query.length < CONFIG.SEARCH_CONFIG.MIN_QUERY_LENGTH) {
+            return [];
+        }
+
+        const normalizedQuery = SearchUtils.normalizeText(query);
+        const suggestions = new Set();
+
+        // Поиск по началу слов
+        for (const item of searchIndex) {
+            if (item.normalizedName.startsWith(normalizedQuery)) {
+                suggestions.add(item.normalizedName);
+            }
+            
+            // Разбиваем на слова и проверяем начало каждого слова
+            const words = item.normalizedName.split(/\s+/);
+            for (const word of words) {
+                if (word.startsWith(normalizedQuery)) {
+                    suggestions.add(word);
+                }
+            }
+        }
+
+        return Array.from(suggestions).slice(0, 5);
+    },
+
+    // Выделение найденных фрагментов в тексте
+    highlightMatches: (text, query) => {
+        if (!text || !query) return text;
+        
+        const normalizedText = text.toLowerCase();
+        const normalizedQuery = query.toLowerCase();
+        
+        // Если есть точное совпадение
+        if (normalizedText.includes(normalizedQuery)) {
+            const startIndex = normalizedText.indexOf(normalizedQuery);
+            return text.substring(0, startIndex) + 
+                   `<mark class="bg-yellow-200 px-1 rounded">${text.substring(startIndex, startIndex + query.length)}</mark>` +
+                   text.substring(startIndex + query.length);
+        }
+        
+        // Разбиваем запрос на слова и выделяем их
+        const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+        let result = text;
+        
+        for (const word of queryWords) {
+            const regex = new RegExp(`(${word})`, 'gi');
+            result = result.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>');
+        }
+        
+        return result;
+    }
+};
+
 // Регистрация Service Worker
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
@@ -50,7 +239,6 @@ function registerServiceWorker() {
             .then(function(registration) {
                 console.log('Service Worker зарегистрирован успешно:', registration.scope);
                 
-                // Проверяем наличие обновлений Service Worker
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     console.log('Обнаружено обновление Service Worker');
@@ -67,7 +255,6 @@ function registerServiceWorker() {
                 console.log('Ошибка регистрации Service Worker:', error);
             });
 
-        // Отслеживаем изменения Service Worker
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             console.log('Service Worker контроллер изменился');
             window.location.reload();
@@ -92,7 +279,6 @@ function checkOnlineStatus() {
 
 // Утилиты для работы с кэшем
 const cacheUtils = {
-    // Сохранить данные в кэш
     saveToCache: (data, etag = null) => {
         try {
             const cacheData = {
@@ -108,14 +294,12 @@ const cacheUtils = {
                 localStorage.setItem(CONFIG.ETAG_KEY, etag);
             }
             
-            // Обновляем информацию о последнем обновлении
             updateLastUpdateInfo(cacheData.lastUpdate);
         } catch (error) {
             console.error('Ошибка сохранения в кэш:', error);
         }
     },
 
-    // Получить данные из кэша
     getFromCache: () => {
         try {
             const cached = localStorage.getItem(CONFIG.CACHE_KEY);
@@ -124,7 +308,6 @@ const cacheUtils = {
             const cacheData = JSON.parse(cached);
             const isExpired = Date.now() - cacheData.timestamp > CONFIG.CACHE_EXPIRY;
 
-            // Показываем информацию о последнем обновлении
             if (cacheData.lastUpdate) {
                 updateLastUpdateInfo(cacheData.lastUpdate);
             }
@@ -141,7 +324,6 @@ const cacheUtils = {
         }
     },
 
-    // Получить ETag из localStorage
     getEtag: () => {
         try {
             return localStorage.getItem(CONFIG.ETAG_KEY);
@@ -151,7 +333,6 @@ const cacheUtils = {
         }
     },
 
-    // Очистить кэш
     clearCache: () => {
         try {
             localStorage.removeItem(CONFIG.CACHE_KEY);
@@ -163,7 +344,6 @@ const cacheUtils = {
         }
     },
 
-    // Сохранить fallback данные
     saveFallbackData: () => {
         try {
             const cacheData = {
@@ -197,7 +377,7 @@ function hideLastUpdateInfo() {
     }
 }
 
-// Показать анимацию загрузки на кнопке обновления в футере
+// Показать/скрыть анимацию загрузки на кнопке обновления
 function showRefreshLoading() {
     if (refreshFooterButton) {
         refreshFooterButton.classList.add('refreshing');
@@ -205,7 +385,6 @@ function showRefreshLoading() {
     }
 }
 
-// Скрыть анимацию загрузки на кнопке обновления в футере
 function hideRefreshLoading() {
     if (refreshFooterButton) {
         refreshFooterButton.classList.remove('refreshing');
@@ -216,7 +395,6 @@ function hideRefreshLoading() {
 // Проверка обновлений на сервере
 async function checkForUpdates(cachedEtag) {
     try {
-        // Если оффлайн, не проверяем обновления
         if (!checkOnlineStatus()) {
             console.log('Оффлайн режим, пропускаем проверку обновлений');
             return false;
@@ -230,34 +408,214 @@ async function checkForUpdates(cachedEtag) {
 
         if (response.status === 304) {
             console.log('Данные не изменились на сервере');
-            return false; // Нет обновлений
+            return false;
         }
 
         if (response.status === 200) {
             const newEtag = response.headers.get('ETag');
             if (newEtag && newEtag !== cachedEtag) {
                 console.log('Обнаружены обновления на сервере');
-                return true; // Есть обновления
+                return true;
             }
         }
 
         return false;
     } catch (error) {
         console.error('Ошибка проверки обновлений:', error);
-        return false; // При ошибке считаем, что обновлений нет
+        return false;
+    }
+}
+
+// Построение поискового индекса
+function buildSearchIndex(productsData) {
+    searchIndex = [];
+    
+    for (const code in products) {
+        const product = products[code];
+        searchIndex.push({
+            code: code,
+            name: product["Полное наименование (русское)"],
+            normalizedName: SearchUtils.normalizeText(product["Полное наименование (русское)"]),
+            manufacturer: product["Производитель"],
+            standard: product["Название стандарта"],
+            product: product
+        });
+    }
+    
+    console.log(`Поисковый индекс построен: ${searchIndex.length} товаров`);
+}
+
+// Интеллектуальный поиск продуктов
+function intelligentSearch(query) {
+    if (!query || query.length < CONFIG.SEARCH_CONFIG.MIN_QUERY_LENGTH) {
+        return [];
+    }
+
+    const results = [];
+    
+    // Поиск по индексу
+    for (const item of searchIndex) {
+        const relevance = SearchUtils.calculateRelevance(item, query);
+        
+        if (relevance > 0) {
+            results.push({
+                code: item.code,
+                product: item.product,
+                relevance: relevance,
+                highlightedName: SearchUtils.highlightMatches(item.name, query)
+            });
+        }
+    }
+    
+    // Сортировка по релевантности
+    results.sort((a, b) => b.relevance - a.relevance);
+    
+    // Ограничение количества результатов
+    return results.slice(0, CONFIG.SEARCH_CONFIG.MAX_RESULTS);
+}
+
+// Отображение результатов поиска
+function displaySearchResults(results) {
+    if (searchResults) {
+        searchResults.innerHTML = '';
+        
+        if (results.length === 0) {
+            const noResults = document.createElement('div');
+            noResults.className = 'p-3 text-gray-500 text-center';
+            noResults.textContent = 'Ничего не найдено. Попробуйте изменить запрос.';
+            noResults.setAttribute('role', 'option');
+            searchResults.appendChild(noResults);
+        } else {
+            results.forEach((result, index) => {
+                const div = document.createElement('div');
+                div.className = `p-3 hover:bg-blue-50 cursor-pointer flex items-center border-b border-gray-100 last:border-0 search-result-item ${index === 0 ? 'bg-blue-50' : ''}`;
+                div.setAttribute('role', 'option');
+                div.setAttribute('data-code', result.code);
+                div.innerHTML = `
+                <div class="bg-blue-100 p-2 rounded-lg mr-3 flex-shrink-0">
+                  <i class="fas fa-box text-blue-600"></i>
+                </div>
+                <div class="flex-grow min-w-0">
+                  <div class="font-medium text-blue-800 mb-1 search-result-name">${result.highlightedName}</div>
+                  <div class="text-sm text-gray-500 truncate">
+                    <span class="inline-block mr-3">
+                      <i class="fas fa-barcode mr-1"></i>
+                      <span class="product-code">${result.code}</span>
+                    </span>
+                    <span class="inline-block mr-3">
+                      <i class="fas fa-calendar-day mr-1"></i>
+                      <span class="shelf-life">${result.product["Срок годности"]} дней</span>
+                    </span>
+                    <span class="inline-block">
+                      <i class="fas fa-industry mr-1"></i>
+                      <span class="manufacturer">${result.product["Производитель"] || "Не указан"}</span>
+                    </span>
+                  </div>
+                  ${result.relevance >= 10 ? '<div class="mt-1 text-xs text-green-600"><i class="fas fa-bolt mr-1"></i>Высокая релевантность</div>' : ''}
+                </div>
+                `;
+                div.onclick = () => selectProduct(result.code);
+                searchResults.appendChild(div);
+            });
+            
+            // Добавляем подсказку о навигации
+            const hint = document.createElement('div');
+            hint.className = 'p-2 text-xs text-gray-400 border-t border-gray-100 bg-gray-50';
+            hint.innerHTML = '<i class="fas fa-info-circle mr-1"></i> Используйте ↑↓ для навигации, Enter для выбора';
+            searchResults.appendChild(hint);
+        }
+        
+        searchResults.classList.remove('hidden');
+        lastSearchResults = results;
+    }
+}
+
+// Обработка поиска с задержкой
+function handleSearchInput() {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    const query = productSearch.value.trim();
+    
+    if (query.length >= CONFIG.SEARCH_CONFIG.MIN_QUERY_LENGTH) {
+        searchTimeout = setTimeout(() => {
+            const results = intelligentSearch(query);
+            displaySearchResults(results);
+        }, 300); // Задержка 300мс для уменьшения количества запросов
+    } else if (searchResults) {
+        searchResults.classList.add('hidden');
+        clearFields();
+    }
+}
+
+// Навигация по результатам поиска с клавиатуры
+function handleKeyboardNavigation(e) {
+    if (!searchResults || searchResults.classList.contains('hidden')) {
+        return;
+    }
+    
+    const items = searchResults.querySelectorAll('.search-result-item');
+    if (items.length === 0) return;
+    
+    let currentIndex = -1;
+    
+    // Находим текущий выбранный элемент
+    items.forEach((item, index) => {
+        if (item.classList.contains('bg-blue-100')) {
+            currentIndex = index;
+        }
+    });
+    
+    switch (e.key) {
+        case 'ArrowDown':
+            e.preventDefault();
+            if (currentIndex < items.length - 1) {
+                items.forEach(item => item.classList.remove('bg-blue-100'));
+                const newIndex = currentIndex === -1 ? 0 : currentIndex + 1;
+                items[newIndex].classList.add('bg-blue-100');
+                items[newIndex].scrollIntoView({ block: 'nearest' });
+            }
+            break;
+            
+        case 'ArrowUp':
+            e.preventDefault();
+            if (currentIndex > 0) {
+                items.forEach(item => item.classList.remove('bg-blue-100'));
+                const newIndex = currentIndex - 1;
+                items[newIndex].classList.add('bg-blue-100');
+                items[newIndex].scrollIntoView({ block: 'nearest' });
+            }
+            break;
+            
+        case 'Enter':
+            e.preventDefault();
+            if (currentIndex >= 0) {
+                const code = items[currentIndex].getAttribute('data-code');
+                if (code) {
+                    selectProduct(code);
+                    productSearch.blur();
+                }
+            } else if (lastSearchResults.length > 0) {
+                // Выбираем первый результат
+                selectProduct(lastSearchResults[0].code);
+                productSearch.blur();
+            }
+            break;
+            
+        case 'Escape':
+            searchResults.classList.add('hidden');
+            break;
     }
 }
 
 // Загрузка данных о продуктах
 async function loadProductsData() {
     try {
-        // Показываем индикатор загрузки
         if (dataStatus) dataStatus.classList.remove('hidden');
         
-        // Проверяем онлайн статус
         checkOnlineStatus();
         
-        // Проверяем кэш
         const cached = cacheUtils.getFromCache();
         const cachedEtag = cacheUtils.getEtag();
         
@@ -265,7 +623,6 @@ async function loadProductsData() {
         let shouldUpdateCache = false;
 
         if (cached && !cached.isExpired) {
-            // Кэш актуален, проверяем обновления на сервере (только если онлайн)
             if (isOnline) {
                 const hasUpdates = await checkForUpdates(cachedEtag);
                 
@@ -278,13 +635,11 @@ async function loadProductsData() {
                     shouldUpdateCache = true;
                 }
             } else {
-                // Оффлайн режим - используем кэш
                 console.log('Оффлайн режим, используем данные из кэша');
                 processProductsData(cached.data);
                 shouldUseCache = true;
             }
         } else if (cached) {
-            // Кэш просрочен, но данные есть
             if (isOnline) {
                 console.log('Кэш просрочен, проверяем обновления');
                 const hasUpdates = await checkForUpdates(cachedEtag);
@@ -299,18 +654,15 @@ async function loadProductsData() {
                     shouldUpdateCache = true;
                 }
             } else {
-                // Оффлайн режим - используем просроченный кэш
                 console.log('Оффлайн режим, используем просроченные данные из кэша');
                 processProductsData(cached.data);
                 shouldUseCache = true;
             }
         } else {
-            // Нет кэша
             if (isOnline) {
                 console.log('Кэш отсутствует, загружаем данные с сервера');
                 shouldUpdateCache = true;
             } else {
-                // Оффлайн и нет кэша - используем fallback данные
                 console.log('Оффлайн режим и нет кэша, используем fallback данные');
                 cacheUtils.saveFallbackData();
                 processProductsData(CONFIG.FALLBACK_DATA);
@@ -319,7 +671,6 @@ async function loadProductsData() {
             }
         }
 
-        // Загружаем новые данные если нужно
         if (shouldUpdateCache) {
             const response = await fetch(CONFIG.JSON_URL, {
                 cache: 'no-cache'
@@ -332,13 +683,9 @@ async function loadProductsData() {
             const productsData = await response.json();
             const newEtag = response.headers.get('ETag');
             
-            // Сохраняем в кэш
             cacheUtils.saveToCache(productsData, newEtag);
-            
-            // Обрабатываем данные
             processProductsData(productsData);
             
-            // Показываем уведомление об успешной загрузке
             if (cached) {
                 showNotification('Данные успешно обновлены', 'success');
             }
@@ -347,21 +694,18 @@ async function loadProductsData() {
     } catch (error) {
         console.error('Ошибка загрузки данных:', error);
         
-        // Пытаемся использовать кэш, даже если он просрочен
         const cached = cacheUtils.getFromCache();
         if (cached) {
             console.log('Используем данные из кэша из-за ошибки сети');
             processProductsData(cached.data);
             showNotification('Не удалось загрузить актуальные данные. Используются кэшированные данные.', 'warning');
         } else {
-            // Нет кэша и не удалось загрузить данные - используем fallback
             console.log('Нет кэша, используем fallback данные');
             cacheUtils.saveFallbackData();
             processProductsData(CONFIG.FALLBACK_DATA);
             showNotification('Не удалось загрузить данные. Используются тестовые данные.', 'error');
         }
     } finally {
-        // Скрываем индикатор загрузки
         if (dataStatus) {
             dataStatus.classList.add('hidden');
         }
@@ -370,9 +714,8 @@ async function loadProductsData() {
 
 // Обработка данных о продуктах
 function processProductsData(productsData) {
-    products = {}; // Очищаем предыдущие данные
+    products = {};
     
-    // Преобразуем массив в объект для быстрого поиска по коду
     productsData.forEach(product => {
         products[product["Код продукции"]] = {
             "Полное наименование (русское)": product["Полное наименование (русское)"],
@@ -384,13 +727,19 @@ function processProductsData(productsData) {
         };
     });
     
+    // Строим поисковый индекс
+    buildSearchIndex(products);
+    
     // Активируем поля ввода
     activateInputFields();
 }
 
 // Активация полей ввода
 function activateInputFields() {
-    if (productSearch) productSearch.disabled = false;
+    if (productSearch) {
+        productSearch.disabled = false;
+        productSearch.placeholder = "Введите код, название или производителя...";
+    }
     if (calculateButton) calculateButton.disabled = false;
     if (printButton) printButton.classList.remove('hidden');
 }
@@ -404,11 +753,9 @@ async function forceRefreshData() {
         return;
     }
     
-    // Показываем анимацию загрузки
     showRefreshLoading();
     
     try {
-        // Очищаем кэш и загружаем заново
         cacheUtils.clearCache();
         await loadProductsData();
         showNotification('Данные успешно обновлены', 'success');
@@ -416,62 +763,19 @@ async function forceRefreshData() {
         console.error('Ошибка при обновлении данных:', error);
         showNotification('Ошибка при обновлении данных', 'error');
     } finally {
-        // Скрываем анимацию загрузки
         hideRefreshLoading();
     }
 }
 
 // Поиск продуктов
 if (productSearch) {
-    productSearch.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        if (searchResults) searchResults.innerHTML = '';
-        if (standardNotificationContainer) standardNotificationContainer.innerHTML = '';
-        
-        if (searchTerm.length < 2) {
-            if (searchResults) searchResults.classList.add('hidden');
-            clearFields();
-            return;
-        }
-
-        let resultsFound = false;
-
-        for (const code in products) {
-            const product = products[code];
-            if (code.includes(searchTerm) ||
-                product["Полное наименование (русское)"].toLowerCase().includes(searchTerm)) {
-
-                const div = document.createElement('div');
-                div.className = 'p-3 hover:bg-blue-50 cursor-pointer flex items-center border-b border-gray-100 last:border-0';
-                div.setAttribute('role', 'option');
-                div.innerHTML = `
-                <div class="bg-blue-100 p-2 rounded-lg mr-3">
-                  <i class="fas fa-box text-blue-600"></i>
-                </div>
-                <div>
-                  <div class="font-medium text-blue-800">${product["Полное наименование (русское)"]}</div>
-                  <div class="text-sm text-gray-500">Код: <span class="product-code">${code}</span> | Срок: <span class="shelf-life">${product["Срок годности"]} дней</span></div>
-                </div>
-                `;
-                div.onclick = function() {
-                    selectProduct(code);
-                };
-                if (searchResults) searchResults.appendChild(div);
-                resultsFound = true;
-            }
-        }
-
-        if (searchResults) {
-            if (resultsFound) {
-                searchResults.classList.remove('hidden');
-            } else {
-                const noResults = document.createElement('div');
-                noResults.className = 'p-3 text-gray-500 text-center';
-                noResults.textContent = 'Ничего не найдено';
-                noResults.setAttribute('role', 'option');
-                searchResults.appendChild(noResults);
-                searchResults.classList.remove('hidden');
-            }
+    productSearch.addEventListener('input', handleSearchInput);
+    productSearch.addEventListener('keydown', handleKeyboardNavigation);
+    
+    // Фокус на поле поиска при загрузке
+    productSearch.addEventListener('focus', function() {
+        if (this.value.length >= CONFIG.SEARCH_CONFIG.MIN_QUERY_LENGTH && lastSearchResults.length > 0) {
+            searchResults.classList.remove('hidden');
         }
     });
 }
@@ -494,9 +798,12 @@ function clearFields() {
         warningMessageAdded = false;
     }
     
-    // Деактивируем кнопку печати при очистке полей
     if (printButton) {
         printButton.disabled = true;
+    }
+    
+    if (standardNotificationContainer) {
+        standardNotificationContainer.innerHTML = '';
     }
 }
 
@@ -534,16 +841,24 @@ function selectProduct(code) {
         showStandardNotification("Статус: " + product["Название стандарта"]);
     }
     
-    // Активируем кнопку печати при выборе продукта
+    // Активируем кнопку печати
     if (printButton) {
         printButton.disabled = false;
     }
     
+    // Показываем подсказку о расчете
     if (!warningMessageAdded) {
         const warningMessage = document.createElement('div');
         warningMessage.id = 'warningMessage';
         warningMessage.className = 'mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700';
-        warningMessage.textContent = 'Важно! Для завершения процесса нажмите кнопку "Рассчитать срок годности".';
+        warningMessage.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-lightbulb mr-2"></i>
+                <div>
+                    <strong>Продукт выбран!</strong> Теперь укажите дату производства и нажмите "Рассчитать срок годности".
+                </div>
+            </div>
+        `;
         
         const calculateButton = document.querySelector('button[onclick="calculateExpiry()"]');
         if (calculateButton) {
@@ -566,6 +881,7 @@ function showStandardNotification(standard) {
     notification.setAttribute('aria-live', 'polite');
     notification.innerHTML = `
         <div class="flex items-start">
+            <i class="fas fa-certificate mr-2 mt-1 text-blue-600"></i>
             <div class="flex-grow break-words">${standard}</div>
         </div>
     `;
@@ -623,13 +939,11 @@ function printResults() {
     const productionDate = document.getElementById('productionDate').value;
     const expiryDate = document.getElementById('expiryDate').textContent;
 
-    // Проверяем, есть ли данные для печати
     if (!productCode || !productName) {
         showNotification('Нет данных для печати. Сначала выберите продукт.', 'error');
         return;
     }
 
-    // Создаем содержимое для печати
     const printContent = `
         <!DOCTYPE html>
         <html lang="ru">
@@ -766,15 +1080,12 @@ function printResults() {
         </html>
     `;
 
-    // Открываем новое окно для печати
     const printWindow = window.open('', '_blank');
     printWindow.document.write(printContent);
     printWindow.document.close();
 
-    // Запускаем печать после загрузки содержимого
     printWindow.onload = function() {
         printWindow.print();
-        // Закрываем окно после печати
         setTimeout(function() {
             printWindow.close();
         }, 100);
@@ -831,7 +1142,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('online', () => {
         console.log('Онлайн статус: онлайн');
         checkOnlineStatus();
-        // Автоматически обновляем данные при восстановлении соединения
         setTimeout(() => {
             loadProductsData();
         }, 1000);
