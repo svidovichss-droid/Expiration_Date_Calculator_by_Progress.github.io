@@ -2,42 +2,53 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Калькулятор срока годности</title>
-    <meta name="description" content="Приложение для расчета срока годности продукции">
+    <meta name="description" content="Приложение для расчета срока годности продукции АО Прогресс">
     <meta name="theme-color" content="#3498db">
     
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self' https://raw.githubusercontent.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
     <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
+    <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    
+
     <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
-    
-    <!-- CSS Styles -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- CSS -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- PWA Meta Tags -->
+
+    <!-- PWA Meta -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Калькулятор срока">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-TileColor" content="#3498db">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Калькулятор срока годности","description":"Приложение для расчета срока годности продукции АО Прогресс","applicationCategory":"BusinessApplication","operatingSystem":"All"}</script>
 </head>
 <body>
 <div class="header">
     <div class="container">
         <div class="header-content flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold">
-                    <i class="fas fa-calculator mr-2"></i> Калькулятор срока годности
-                </h1>
-                <p class="mt-1 opacity-90">
-                    Рассчитайте дату окончания срока годности продукции
-                </p>
+                <h1 class="text-3xl font-bold"><i class="fas fa-calculator mr-2"></i> Калькулятор срока годности</h1>
+                <p class="mt-1 opacity-90">Рассчитайте дату окончания срока годности продукции</p>
             </div>
             <div class="logo">
                 <div class="text-xl font-bold">ПРОГРЕСС</div>
@@ -54,7 +65,6 @@
                 <h2 class="text-xl font-bold">Расчет срока годности</h2>
             </div>
             <div class="card-body">
-                <!-- Data loading status -->
                 <div id="dataStatus" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div class="flex items-center">
                         <div class="loading-spinner"></div>
@@ -62,15 +72,13 @@
                     </div>
                 </div>
 
-                <!-- Offline status indicator -->
                 <div id="offlineStatus" class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
                     <div class="flex items-center">
                         <i class="fas fa-wifi-slash text-yellow-600 mr-2"></i>
-                        <p class="text-yellow-700">Работаем в автономном режиме. Данные загружены из кэша.</p>
+                        <p class="text-yellow-700">Работаем в автономном режиме</p>
                     </div>
                 </div>
 
-                <!-- Product search with print button and notification area -->
                 <div class="mb-4 flex flex-col md:flex-row md:items-start gap-4">
                     <div class="flex-grow">
                         <div class="flex items-end gap-2">
@@ -79,200 +87,101 @@
                                     <i class="fas fa-search mr-2 text-blue-500"></i> Поиск продукта
                                 </label>
                                 <div class="relative">
-                                    <input
-                                       type="text"
-                                       id="productSearch"
-                                       placeholder="Введите код или название продукта..."
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                       aria-label="Поиск продукта по коду или названию"
-                                       disabled
-                                    >
-                                    <div id="searchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden" role="listbox">
-                                        <!-- Search results will appear here -->
-                                    </div>
+                                    <input type="text" id="productSearch" placeholder="Введите код или название..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" aria-label="Поиск продукта" disabled autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                                    <div id="searchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden" role="listbox"></div>
                                 </div>
                             </div>
-                            <!-- Minimalistic print button -->
-                            <button
-                               onclick="printResults()"
-                               class="print-btn-minimal hidden"
-                               id="printButton"
-                               aria-label="Печать результатов"
-                               title="Печать результатов"
-                               disabled
-                            >
-                                <i class="fas fa-print"></i>
-                            </button>
+                            <button onclick="printResults()" class="print-btn-minimal hidden" id="printButton" aria-label="Печать" disabled><i class="fas fa-print"></i></button>
                         </div>
                     </div>
-                    
-                    <!-- Standard notification container -->
                     <div id="standardNotificationContainer" class="md:mt-8 w-full md:w-64"></div>
                 </div>
 
-                <!-- Product info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label for="productCode" class="block text-gray-700 font-medium mb-2">
-                            <i class="fas fa-barcode mr-2 text-blue-500"></i> Код продукции
-                        </label>
-                        <input
-                           type="text"
-                           id="productCode"
-                           readonly
-                           class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed"
-                           aria-readonly="true"
-                        >
+                        <label for="productCode" class="block text-gray-700 font-medium mb-2"><i class="fas fa-barcode mr-2 text-blue-500"></i> Код продукции</label>
+                        <input type="text" id="productCode" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed" aria-readonly="true">
                     </div>
-
                     <div>
-                        <label for="productName" class="block text-gray-700 font-medium mb-2">
-                            <i class="fas fa-tag mr-2 text-blue-500"></i> Наименование
-                        </label>
-                        <input
-                           type="text"
-                           id="productName"
-                           readonly
-                           class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed"
-                           aria-readonly="true"
-                        >
+                        <label for="productName" class="block text-gray-700 font-medium mb-2"><i class="fas fa-tag mr-2 text-blue-500"></i> Наименование</label>
+                        <input type="text" id="productName" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed" aria-readonly="true">
                     </div>
-
                     <div>
-                        <label for="shelfLife" class="block text-gray-700 font-medium mb-2">
-                            <i class="fas fa-calendar-day mr-2 text-blue-500"></i> Срок годности (дней)
-                        </label>
+                        <label for="shelfLife" class="block text-gray-700 font-medium mb-2"><i class="fas fa-calendar-day mr-2 text-blue-500"></i> Срок годности (дней)</label>
                         <div class="relative">
-                            <input
-                               type="text"
-                               id="shelfLife"
-                               readonly
-                               class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed pr-12"
-                               aria-readonly="true"
-                            >
+                            <input type="text" id="shelfLife" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed pr-12" aria-readonly="true">
                             <span class="absolute right-3 top-3 text-gray-500">дней</span>
                         </div>
                     </div>
-
                     <div>
-                        <label for="quantityPerPack" class="block text-gray-700 font-medium mb-2">
-                            <i class="fas fa-boxes mr-2 text-blue-500"></i> Штук в упаковке
-                        </label>
-                        <input
-                           type="number"
-                           id="quantityPerPack"
-                           min="1"
-                           readonly
-                           class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed"
-                           aria-readonly="true"
-                        >
+                        <label for="quantityPerPack" class="block text-gray-700 font-medium mb-2"><i class="fas fa-boxes mr-2 text-blue-500"></i> Штук в упаковке</label>
+                        <input type="number" id="quantityPerPack" min="1" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed" aria-readonly="true">
                     </div>
-
                     <div>
-                        <label for="groupBarcode" class="block text-gray-700 font-medium mb-2">
-                            <i class="fas fa-qrcode mr-2 text-blue-500"></i> Штрихкод упаковки
-                        </label>
-                        <input
-                           type="text"
-                           id="groupBarcode"
-                           readonly
-                           class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed"
-                           aria-readonly="true"
-                        >
+                        <label for="groupBarcode" class="block text-gray-700 font-medium mb-2"><i class="fas fa-qrcode mr-2 text-blue-500"></i> Штрихкод упаковки</label>
+                        <input type="text" id="groupBarcode" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed" aria-readonly="true">
                     </div>
-
                     <div>
-                        <label for="manufacturerBarcode" class="block text-gray-700 font-medium mb-2">
-                            <i class="fas fa-industry mr-2 text-blue-500"></i> Производитель
-                        </label>
-                        <input
-                           type="text"
-                           id="manufacturerBarcode"
-                           readonly
-                           class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed"
-                           aria-readonly="true"
-                        >
+                        <label for="manufacturerBarcode" class="block text-gray-700 font-medium mb-2"><i class="fas fa-industry mr-2 text-blue-500"></i> Производитель</label>
+                        <input type="text" id="manufacturerBarcode" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed" aria-readonly="true">
                     </div>
                 </div>
 
-                <!-- Production date -->
                 <div class="mb-4">
-                    <label for="productionDate" class="block text-gray-700 font-medium mb-2">
-                        <i class="fas fa-calendar-alt mr-2 text-blue-500"></i> Дата производства
-                    </label>
-                    <input
-                       type="date"
-                       id="productionDate"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                       aria-label="Укажите дату производства"
-                    >
+                    <label for="productionDate" class="block text-gray-700 font-medium mb-2"><i class="fas fa-calendar-alt mr-2 text-blue-500"></i> Дата производства</label>
+                    <input type="date" id="productionDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" aria-label="Дата производства">
                 </div>
 
-                <!-- Calculate button -->
-                <button
-                   onclick="calculateExpiry()"
-                   class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg transition-all duration-300 shadow-md"
-                   aria-label="Рассчитать срок годности"
-                   id="calculateButton"
-                   disabled
-                >
+                <button onclick="calculateExpiry()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg transition-all duration-300 shadow-md" id="calculateButton" disabled>
                     <i class="fas fa-calculator mr-2"></i> Рассчитать срок годности
                 </button>
 
-                <!-- Result -->
                 <div id="result" class="mt-4 p-5 bg-blue-50 border border-blue-200 rounded-lg hidden fade-in" aria-live="polite">
                     <div class="flex items-center">
-                        <div class="bg-blue-100 p-3 rounded-lg mr-4">
-                            <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
-                        </div>
+                        <div class="bg-blue-100 p-3 rounded-lg mr-4"><i class="fas fa-calendar-check text-blue-600 text-xl"></i></div>
                         <div>
-                            <p class="text-gray-700">
-                                Дата окончания срока годности:
-                            </p>
+                            <p class="text-gray-700">Дата окончания срока годности:</p>
                             <p class="text-xl font-bold text-blue-800" id="expiryDate"></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Last update info -->
-                <div id="lastUpdateInfo" class="mt-4 text-xs text-gray-500 text-center hidden">
-                    Данные обновлены: <span id="lastUpdateTime"></span>
-                </div>
+                <div id="lastUpdateInfo" class="mt-4 text-xs text-gray-500 text-center hidden">Данные обновлены: <span id="lastUpdateTime"></span></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Footer -->
 <div class="footer">
     <div class="container">
         <div class="flex flex-col items-center">
-            <p class="mb-2">
-                © 2025 Калькулятор срока годности | Версия 2.5 PWA 
-                <i class="fas fa-heart text-red-500 mx-1"></i> 
-                <i class="fas fa-code-branch text-blue-500 mx-1"></i> 
-                (made in Quality service)
-            </p>
+            <p class="mb-2">© 2025 Калькулятор срока годности | Версия 3.0 PWA <i class="fas fa-heart text-red-500 mx-1"></i> (made in Quality service)</p>
             <div class="flex items-center space-x-4 text-sm text-gray-300">
-                <a href="mailto:asvidovich@progressfood.com" 
-                   class="hover:text-white transition-colors flex items-center"
-                   aria-label="Обратная связь">
-                    <i class="fas fa-envelope mr-1"></i>
-                    Обратная связь
-                </a>
+                <a href="mailto:asvidovich@progressfood.com" class="hover:text-white transition-colors flex items-center" aria-label="Обратная связь"><i class="fas fa-envelope mr-1"></i> Обратная связь</a>
                 <span class="text-gray-500">|</span>
-                <button onclick="forceRefreshData()" 
-                        class="hover:text-white transition-colors flex items-center refresh-footer-btn"
-                        id="refreshFooterButton"
-                        aria-label="Обновить данные">
-                    <i class="fas fa-sync-alt mr-1"></i>
-                    Обновить данные
-                </button>
+                <button onclick="forceRefreshData()" class="hover:text-white transition-colors flex items-center refresh-footer-btn" id="refreshFooterButton" aria-label="Обновить данные"><i class="fas fa-sync-alt mr-1"></i> Обновить данные</button>
             </div>
         </div>
     </div>
 </div>
 
-<script src="script.js"></script>
+<div id="installPrompt" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white shadow-lg rounded-lg p-4 border border-blue-200 hidden z-50 slide-up">
+    <div class="flex items-start justify-between">
+        <div class="flex items-start">
+            <div class="bg-blue-100 p-2 rounded-lg mr-3"><i class="fas fa-download text-blue-600"></i></div>
+            <div>
+                <h3 class="font-bold text-gray-800">Установите приложение</h3>
+                <p class="text-sm text-gray-600">Быстрый доступ к калькулятору</p>
+            </div>
+        </div>
+        <button onclick="dismissInstallPrompt()" class="text-gray-400 hover:text-gray-600" aria-label="Закрыть"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mt-3 flex gap-2">
+        <button onclick="installApp()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"><i class="fas fa-plus mr-1"></i> Установить</button>
+        <button onclick="dismissInstallPrompt()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors">Позже</button>
+    </div>
+</div>
+
+<script src="script.js" defer></script>
 </body>
 </html>
